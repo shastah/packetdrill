@@ -184,6 +184,10 @@ loop:
 		die_perror("TUNSIFHEAD");
 #endif /* defined(__FreeBSD__) ||  defined(__NetBSD__) */
 
+	char *env_netdev_name;
+	asprintf(&env_netdev_name, "PACKETDRILL_DEV=%s", netdev->name);
+	putenv(env_netdev_name);
+
 	DEBUGP("tun name: '%s'\n", netdev->name);
 
 	netdev->index = if_nametoindex(netdev->name);
