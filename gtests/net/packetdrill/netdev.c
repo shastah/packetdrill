@@ -129,7 +129,7 @@ static void create_device(struct config *config, struct local_netdev *netdev)
 
 loop:
 	if (++nb > 10)
-		die_perror("open tun device");
+		die("too many attempts to open tun device\n");
 #endif
 	tun_fd = open(TUN_PATH, O_RDWR);
 	if (tun_fd < 0)
