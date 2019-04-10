@@ -162,6 +162,10 @@ struct config {
 	/* For anyip testing */
 	bool is_anyip;
 
+#ifdef linux
+	/* For requesting specific tun device */
+	char *tun_dev;
+#endif
 	/* List of FOO=bar definitions from command line. */
 	struct definition *defines;
 };

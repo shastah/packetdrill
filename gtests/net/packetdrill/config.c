@@ -64,6 +64,9 @@ enum option_codes {
 	OPT_NON_FATAL,
 	OPT_DRY_RUN,
 	OPT_IS_ANYIP,
+#ifdef linux
+	OPT_TUN_DEV,
+#endif
 	OPT_SEND_OMIT_FREE,
 	OPT_DEFINE = 'D',	/* a '-D' single-letter option */
 	OPT_VERBOSE = 'v',	/* a '-v' single-letter option */
@@ -100,6 +103,9 @@ struct option options[] = {
 	{ "non_fatal",		.has_arg = true,  NULL, OPT_NON_FATAL },
 	{ "dry_run",		.has_arg = false, NULL, OPT_DRY_RUN },
 	{ "is_anyip",		.has_arg = false, NULL, OPT_IS_ANYIP },
+#ifdef linux
+	{ "tun_dev",		.has_arg = true,  NULL, OPT_TUN_DEV },
+#endif
 	{ "send_omit_free",	.has_arg = false, NULL, OPT_SEND_OMIT_FREE },
 	{ "define",		.has_arg = true,  NULL, OPT_DEFINE },
 	{ "verbose",		.has_arg = false, NULL, OPT_VERBOSE },
@@ -138,6 +144,9 @@ void show_usage(void)
 		"\t[--so_flags=<flags passed to SO init function>]\n"
 		"\t[--dry_run]\n"
 		"\t[--is_anyip]\n"
+#ifdef linux
+		"\t[--tun_dev=<explicit tun device name or \"auto\">]\n"
+#endif
 		"\t[--send_omit_free]\n"
 		"\t[--define symbol1=val1 --define symbol2=val2 ...]\n"
 		"\t[--verbose|-v]\n"
@@ -499,6 +508,11 @@ static void process_option(int opt, char *optarg, struct config *config,
 	case OPT_IS_ANYIP:
 		config->is_anyip = true;
 		break;
+#ifdef linux
+	case OPT_TUN_DEV:
+		config->tun_dev = strdup(optarg);
+		break;
+#endif
 	case OPT_SEND_OMIT_FREE:
 		config->send_omit_free = true;
 		break;

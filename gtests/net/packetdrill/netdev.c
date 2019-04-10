@@ -138,22 +138,27 @@ loop:
 	netdev->tun_fd = tun_fd;
 
 #ifdef linux
-	/* Create the device. Since we do not specify a device name, the
-	 * kernel will try to allocate the "next" device of the specified
-	 * type. This device will disappear when we are done.
+	/* Create the device. If config does not specify device name (or
+	 * uses "auto"), kernel will try to allocate the "next" device of
+	 * the specified type. This device will disappear when we are done.
 	 */
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof(ifr));
+	if (config->tun_dev && strcmp(config->tun_dev, "auto") != 0) {
+		strncpy(ifr.ifr_name, config->tun_dev, sizeof(ifr.ifr_name)-1);
+		DEBUGP("trying to open specific tun dev: '%s'\n", ifr.ifr_name);
+	}
 	ifr.ifr_flags = IFF_TUN | IFF_NO_PI | IFF_VNET_HDR;
 	int status = ioctl(netdev->tun_fd, TUNSETIFF, (void *)&ifr);
 	if (status < 0)
 		die_perror("TUNSETIFF");
 
-	/* Our tests rely on using tun0.
-	 * We might change this in the future, by passing a variable filled
-	 * with tunnel name. In the mean time, wait a bit that tun0 gets free.
+	/* Wait until the expected tun device becomes free.
+	 * If --tun_dev wasn't used, keep old behavior and expect tun0,
+	 * as some tests rely on that specific name.
 	 */
-	if (strcmp(ifr.ifr_name, "tun0")) {
+	if ((!config->tun_dev || strcmp(config->tun_dev, "auto") != 0)
+	    && strcmp(ifr.ifr_name, config->tun_dev ? config->tun_dev : "tun0")) {
 		close(tun_fd);
 		usleep(100000);
 		goto loop;
